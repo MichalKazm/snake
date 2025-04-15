@@ -9,40 +9,72 @@ extern "C" {
 #include"./SDL2-2.0.10/include/SDL_main.h"
 }
 
+// Length of one side of each square segment of the snake in pixels.
+#define SEGMENT_SIZE	20
 
-#define SEGMENT_SIZE	20													//size of one segment of the snake in px
+// Number of columns and rows in the playable area.
+#define COLS			30
+#define ROWS			30
 
-#define COLS			30													//number of columns of the map
-#define ROWS			30													//number of rows of the map
+// Size of the playable area: COLS x ROWS.
+// Each cell is the same size in pixels as one segment.
+#define SCREEN_WIDTH	(COLS * SEGMENT_SIZE)
+#define SCREEN_HEIGHT	(ROWS * SEGMENT_SIZE)
 
-#define SCREEN_WIDTH	(COLS * SEGMENT_SIZE)								//size of the map is COLS x ROWS
-#define SCREEN_HEIGHT	(ROWS * SEGMENT_SIZE)								//where each cell is size of a segment
+// Both lengths are in pixels.
+// Additional pixel is added for the outline around the playable area.
+#define BORDER_LENGTH	(8 + 1)
+#define INFO_LENGTH		(44 + 1)
 
-#define BORDER_LENGTH	(8 + 1)												//1 additional pixel for the border  
-#define INFO_LENGTH		(44 + 1)											//around the screen
+// Info section is where all of the information is displayed.
+#define WINDOW_WIDTH	(SCREEN_WIDTH  + 2 * BORDER_LENGTH)
+#define WINDOW_HEIGHT	(SCREEN_HEIGHT  + BORDER_LENGTH + INFO_LENGTH)
 
-#define WINDOW_WIDTH	(SCREEN_WIDTH  + 2 * BORDER_LENGTH)					
-#define WINDOW_HEIGHT	(SCREEN_HEIGHT  + BORDER_LENGTH + INFO_LENGTH)		//info section is where all of the information is displayed
+// IMPORTANT:
+// Changes to the starting position and length must be made carefully.
+// If even one segment spawns outside the playable area, the game will crash.
 
-#define STARTING_X 		20													//coordinates of the cell where 
-#define STARTING_Y 		20													//a head of the snake will be
-#define STARTING_LENGTH	8													//all remaining segments are below head in the straight line
+// Starting position of the snake's head.
+#define STARTING_X 		20
+#define STARTING_Y 		20
 
-#define STARTING_SPEED	0.25												//time after which snake will move in s
-#define SPEEDUP_TIME	10													//time after which snake's speed will increase
-#define SPEEDUP_RATE	0.9													//constant by which speed will be multiplied to make snake move faster	
-#define SLOWDOWN_RATE	1.5													//constant by which speed will be multiplied to make snake move slower
+// Length includes the head.
+// Remaining segments are placed in a straight line below the head.
+#define STARTING_LENGTH	8
 
-#define RED_BAR_SIZE	100													//width of the bar showing time left before red dot disapears in px
-#define RED_DOT_TIMER	10													//time for which red ddt is active in s
-#define RED_MIN_APP		3													//min and max time after which red dot will
-#define RED_MAX_APP		15													//appear after last one disappeared in s
+// Time settings are all in s.
 
-#define RED_SCORE		250													//number of points given for collecting a red dot		
-#define BLUE_SCORE		100													//number of points given for collecting a blue dot
+// Time between snake's moves.
+// The lower the value the faster the snake will move.
+#define STARTING_SPEED	0.25
 
-#define RA(min, max) ( (min) + rand() % ((max) - (min) + 1) )				// random number between min and max (inc)
+// Time after which the snake's speed will be multiplied by SPEEDUP_RATE.
+#define SPEEDUP_TIME	10
 
+// Constant by which speed will be multiplied to make snake move faster.
+#define SPEEDUP_RATE	0.9
+
+// Constant by which speed will be multiplied to make snake move slower.
+#define SLOWDOWN_RATE	1.5
+
+// Width of the bar showing time left before red dot disapears in px.
+#define RED_BAR_SIZE	100
+
+// Time for which red dot is active.
+#define RED_DOT_TIMER	10
+
+// Min and max time between one red dot disappeared and new one appearing.
+#define RED_MIN_APP		3
+#define RED_MAX_APP		15
+
+// Number of points given for collecting a red and blue dot.
+#define RED_SCORE		250
+#define BLUE_SCORE		100
+
+// Generating a random number between min and max (inclusive).
+#define RA(min, max) ( (min) + rand() % ((max) - (min) + 1) )
+
+// Handles all SDL resources needed for rendering.
 typedef struct {
 	SDL_Surface *screen, *charset;
 	SDL_Texture *scrtex;
@@ -50,6 +82,7 @@ typedef struct {
 	SDL_Renderer *renderer;
 } DISPLAY;
 
+// Color IDs used in drawing game elements.
 typedef struct {
 	int black;
 	int green; 
@@ -58,6 +91,7 @@ typedef struct {
 	int white;
 } COLOR;
 
+// Tracks frame timing, FPS, and total world time.
 typedef struct {
 	int t1;
 	int t2;
@@ -68,12 +102,14 @@ typedef struct {
 	double fps;
 } TIME;
 
+// Information about a segment of the snake as a linked list element.
 typedef struct segment{
 	int x;
 	int y;
 	struct segment* next;
 } SEGMENT;
 
+// Tracks global information about the snake and points to the linked list of segments.
 typedef struct {
 	int len;
 	double nextMove;
@@ -83,11 +119,13 @@ typedef struct {
 	SEGMENT* head;
 } SNAKE;
 
+// Information about the basic collectable.
 typedef struct {
 	int x;
 	int y;
 } BLUE_DOT;
 
+// Information about the special collectable.
 typedef struct {
 	int x;
 	int y;
@@ -95,11 +133,11 @@ typedef struct {
 	double appearTimer;
 } RED_DOT;
 
-
 ////////////////////////////
 /*INITIALISATION FUNCTIONS*/
 ////////////////////////////	
 
+	// Initializes SDL and seeds rand.
 	int Start()
 	{
 		int rc;
@@ -114,6 +152,7 @@ typedef struct {
 		return 1;
 	}
 
+	// Sets up window, renderer, textures, and screen surface.
 	int initDisplay(DISPLAY* display)
 	{
 		int rc;
@@ -146,6 +185,7 @@ typedef struct {
 		return 1;
 	}
 
+	// Maps color values to names.
 	void initColor(DISPLAY* display, COLOR* color)
 	{
 		SDL_SetColorKey(display->charset, true, 0x000000);
@@ -157,6 +197,7 @@ typedef struct {
 		color->white = SDL_MapRGB(display->screen->format, 0xFF, 0xFF, 0xFF);
 	}
 
+	// Sets starting values for time tracking.
 	void initTime(TIME* time)
 	{
 		time->t1 = SDL_GetTicks();
@@ -166,6 +207,7 @@ typedef struct {
 		time->worldTime = 0;
 	}
 
+	// Sets snake properties and generates initial body segments.
 	void initSnake(SNAKE* snake)
 	{
 		snake->len = STARTING_LENGTH;
@@ -189,15 +231,9 @@ typedef struct {
 				current->next = NULL;
 			}
 		}
-
-		// next = snake->head;
-
-		// for(int i = 0; i < STARTING_LENGTH; i++) {
-		// 	printf("%d) x: %d y: %d ptr: %p\n", i, next->x, next->y, next->next);
-		// 	next = next->next;
-		// }
 	}
 
+	// sets random time for red dot apperance.
 	void initRedDot (RED_DOT* redDot)
 	{
 		redDot->appearTimer = RA(RED_MIN_APP, RED_MAX_APP);
@@ -210,7 +246,8 @@ typedef struct {
 /*DRAWING FUNCTIONS*/
 /////////////////////
 	
-	void DrawString(SDL_Surface *screen, int x, int y, const char *text, SDL_Surface *charset) 
+	// Draws a string using bitmap as font.
+    void DrawString(SDL_Surface *screen, int x, int y, const char *text, SDL_Surface *charset)
 	{
 		int px, py, c;
 		SDL_Rect s, d;
@@ -232,6 +269,7 @@ typedef struct {
 		}
 	}
 
+    //Draws a pixel in a specific color.
 	void DrawPixel(SDL_Surface *surface, int x, int y, Uint32 color) 
 	{
 		int bpp = surface->format->BytesPerPixel;
@@ -239,6 +277,7 @@ typedef struct {
 		*(Uint32 *)p = color;
 	}
 
+	// Draws a line of length l in direction (dx, dy).
 	void DrawLine(SDL_Surface *screen, int x, int y, int l, int dx, int dy, Uint32 color) 
 	{
 		for(int i = 0; i < l; i++) {
@@ -248,6 +287,7 @@ typedef struct {
 		}
 	}
 
+	// Draws a filled rectangle with a colored outline.
 	void DrawRectangle(SDL_Surface *screen, int x, int y, int l, int k, Uint32 outlineColor, Uint32 fillColor) 
 	{
 		int i;
@@ -265,9 +305,11 @@ typedef struct {
 /*GAME LOGIC FUNCTIONS*/
 ////////////////////////
 
-	int checkCollision(SNAKE* snake, int x, int y)							//checks if cell with cooridates x, y is currently occupied by
-	{																		//one ofsnake segments (doesn't count the tail) because it will
-		SEGMENT* current = snake->head;										//disapear after a move so new head can be placed in it's place
+	// Checks if the cell at coordinates (x, y) is occupied by any of the snake's segments.
+    // Ignores the last segment because it will be deleted when the move will happen.
+	int checkCollision(SNAKE* snake, int x, int y)
+	{
+		SEGMENT* current = snake->head;
 
 		for(int i = 0; i < snake->len - 1; current = current->next, i++)
 		{
@@ -278,6 +320,7 @@ typedef struct {
 		return 0;
 	}
 
+	// Generates the position of a new blue dot on an unoccupied cell.
 	void generateBlueDot(BLUE_DOT* blueDot,RED_DOT* redDot, SNAKE* snake)
 	{
 		SEGMENT* current = snake->head;
@@ -304,11 +347,11 @@ typedef struct {
 				blueDot->x = x;
 				blueDot->y = y;
 				found = 1;
-				//printf("x: %d y: %d\n", x, y);
 			}
 		}
 	}
 
+	// Generates the position of a new red dot on an unoccupied cell.
 	void generateRedDot(RED_DOT* redDot, BLUE_DOT* blueDot, SNAKE* snake)
 	{
 		SEGMENT* current = snake->head;
@@ -333,24 +376,29 @@ typedef struct {
 				redDot->x = x;
 				redDot->y = y;
 				found = 1;
-				//printf("x: %d y: %d\n", x, y);
 			}
 		}
 
 		redDot->activeTimer = RED_DOT_TIMER;
 	}
 
+	// Moves the snake in the given direction.
+    // Handles collisions, scoring, growth, red dot interaction, and direction correction to prevent reversing.
 	int moveSnake(SNAKE* snake, BLUE_DOT* blueDot, RED_DOT* redDot, char move, int* score)
 	{
 		int newX, newY;
 		char lastMove = snake->lastMove;
 		SEGMENT* current = snake->head;
 
+        // Prevents moving backwards.
 		if(((move == 'w') && (lastMove == 's'))  ||  ((move == 's') && (lastMove == 'w'))  ||  ((move == 'a') && (lastMove == 'd'))  ||  ((move == 'd') && (lastMove == 'a'))) {
 			move = lastMove;
 		}
 		
-		switch (move){
+		// Moves the snake in the given direction.
+        // Handles bumping from the border.
+        // If it is possible moves snake to the right of the head; otherwise to the left.
+        switch (move){
 			case 'w':
 				if(current->y == 0) {
 					if((current->x == COLS - 1) || (checkCollision(snake, current->x + 1, current->y) && (current->x != 0))) {
@@ -430,17 +478,19 @@ typedef struct {
 				}
 				
 				break;
-		
 		}
 
 		int newBlueDot = 0;
 		int newRedDot = 0;
-		
 
-		if((newX == blueDot->x) && (newY == blueDot->y)) {		//makes snake longer and generates 'fake' tail
-			for(int j = 0; j < snake->len - 1; j++) {			//which will make 'real' tail count in checkCollision() 
-				current = current->next;						//and which will be deleted instead of 'real' tail
-			}													//(it is easier to do this this way)
+        // Checks if snake moved on a blue dot.
+        // If it did makes snake longer.
+        // A new segment is added at the end.
+        // It doesn't need to have a specific position, because it will be deleted before it could be rendered.
+		if((newX == blueDot->x) && (newY == blueDot->y)) {
+			for(int j = 0; j < snake->len - 1; j++) {
+				current = current->next;
+			}
 			current->next = (SEGMENT*)malloc(sizeof(SEGMENT));
 			snake->len++;
 			newBlueDot = 1;
@@ -448,6 +498,8 @@ typedef struct {
 			*score += BLUE_SCORE;
 		}
 
+        // Checks if snake moved on a red dot.
+        // If it did randomizes an effect (makes snake shorter or slower).
 		if((redDot->activeTimer > 0) && (newX == redDot->x) && (newY == redDot->y)) {
 			if((snake->len == 1) || (RA(0, 1))) {
 				snake->speed *= SLOWDOWN_RATE;
@@ -468,6 +520,7 @@ typedef struct {
 		}
 		
 
+        // If snake can move properly, adds new head at position (newX, newY) and deletes last segment.
 		if(checkCollision(snake, newX, newY)) {
 			return 0;
 		}
@@ -504,14 +557,17 @@ typedef struct {
 /*PRINT FUNCTIONS*/
 ///////////////////
 
-	void printBorder(DISPLAY* display, int score, COLOR* color, TIME* time)
+	// Prints statistics, control info, borders around the playable area and the background of the area.
+    void printBorder(DISPLAY* display, int score, COLOR* color, TIME* time)
 	{
 		char text[128];
 		
 		SDL_FillRect(display->screen, NULL, color->blue);
 
-		DrawRectangle(display->screen, BORDER_LENGTH - 1, INFO_LENGTH - 1, SCREEN_WIDTH + 1, SCREEN_HEIGHT + 1, color->white, color->black);	//+/- 1 is beacuse of the 1 px border around the screen which is counted into the size of the screen
-																																				//but it is useful to have it saved in border/info size which is used when printing the snake
+		// +/- 1 is used here because of the 1 px outline around the screen, which is included in the overall screen size.
+		// It is useful in the rest of the program to have it saved in border/info sizes, but here it must be compensated for.
+		DrawRectangle(display->screen, BORDER_LENGTH - 1, INFO_LENGTH - 1, SCREEN_WIDTH + 1, SCREEN_HEIGHT + 1, color->white, color->black);
+
 		sprintf(text, "Time: %.1lf    FPS: %.0lf", time->worldTime, time->fps);
 		DrawString(display->screen, BORDER_LENGTH + 2, 10, text, display->charset);
 
@@ -526,6 +582,7 @@ typedef struct {
 
 	}
 
+    // Prints whole snake segment by segment in correct cells.
 	void printSnake(DISPLAY* display, SNAKE* snake, COLOR* color)
 	{
 		int len = snake->len;
@@ -543,6 +600,7 @@ typedef struct {
 
 	}
 
+    // Prints blue dot in correct cell as a smaller centered square.
 	void printBlueDot(DISPLAY* display, BLUE_DOT* blueDot, COLOR* color)
 	{
 		int x = BORDER_LENGTH + blueDot->x * SEGMENT_SIZE + 0.25 * SEGMENT_SIZE;
@@ -551,6 +609,7 @@ typedef struct {
 		DrawRectangle(display->screen, x, y, SEGMENT_SIZE / 2, SEGMENT_SIZE / 2, color->blue, color->blue);
 	}
 
+    // Prints red dot and the time bar showing how much longer it will stay.
 	void printRedDot(DISPLAY* display, RED_DOT* redDot, COLOR* color)
 	{
 		int x = BORDER_LENGTH + redDot->x * SEGMENT_SIZE + 0.25 * SEGMENT_SIZE;
@@ -567,7 +626,8 @@ typedef struct {
 		if(redWidth > 0) DrawRectangle(display->screen, display->screen->w / 2 - RED_BAR_SIZE / 2 + greenWidth, 10, redWidth, 8, color->red, color->red);
 	}
 
-	void printEnd(DISPLAY* display, int score, COLOR* color)
+	// Prints final statistics.
+    void printEnd(DISPLAY* display, int score, COLOR* color)
 	{
 		char text[128];
 
@@ -581,6 +641,8 @@ typedef struct {
 		DrawString(display->screen, display->screen->w / 2 - strlen(text) * 8 / 2, INFO_LENGTH + SCREEN_HEIGHT / 2 - 4 + 16, text, display->charset);
 
 	}
+
+    // Refreshes the whole screen.
 	void updateScreen(DISPLAY* display)
 	{
 		SDL_UpdateTexture(display->scrtex, NULL, display->screen->pixels, display->screen->pitch);
@@ -595,7 +657,8 @@ typedef struct {
 /*END FUNCTIONS*/
 /////////////////
 
-	void freeSnake(SNAKE* snake)
+	// Frees memory allocated for the linked list containing all snake segments.
+    void freeSnake(SNAKE* snake)
 	{
 		for(int i = 0; i < snake->len - 1; snake->len--) {
 			SEGMENT* segment = snake->head;
@@ -607,7 +670,8 @@ typedef struct {
 		free(snake->head);
 	}
 	
-	void End(DISPLAY* display, COLOR* color, TIME* time, SNAKE* snake, BLUE_DOT* blueDot, RED_DOT* redDot)
+	// Frees all allocated memory and quits SDL.
+    void End(DISPLAY* display, COLOR* color, TIME* time, SNAKE* snake, BLUE_DOT* blueDot, RED_DOT* redDot)
 	{
 		if(display != NULL) {
 
@@ -630,6 +694,7 @@ typedef struct {
 		SDL_Quit();
 	}
 
+	// Returns the game to its starting state.
 	void Restart(TIME* time, SNAKE* snake, BLUE_DOT* blueDot, RED_DOT* redDot, int* end, char* move, int* score)
 	{
 		freeSnake(snake);
@@ -643,7 +708,8 @@ typedef struct {
 		*score = 0;
 	}
 
-	void Save(TIME* time, SNAKE* snake, BLUE_DOT* blueDot, RED_DOT* redDot, char move, int score)
+	// Writes the current game state to a file.
+    void Save(TIME* time, SNAKE* snake, BLUE_DOT* blueDot, RED_DOT* redDot, char move, int score)
 	{
 		FILE* file = fopen("save.txt", "w");
 
@@ -674,7 +740,8 @@ typedef struct {
 		}
 	}
 
-	int Load(TIME* time, SNAKE* snake, BLUE_DOT* blueDot, RED_DOT* redDot, char* move, int* score)
+	// Loads the saved game state from a file.
+    int Load(TIME* time, SNAKE* snake, BLUE_DOT* blueDot, RED_DOT* redDot, char* move, int* score)
 	{
 		FILE* file = fopen("save.txt", "r");
 		
@@ -736,8 +803,10 @@ typedef struct {
 	#endif
 	int main(int argc, char **argv) 
 	{
+        // Checks if SDL was initialized properly.
 		if(!Start()) return 1;
 
+        // Allocates memory for game components.
 		DISPLAY* display = (DISPLAY*)malloc(sizeof(DISPLAY));
 		COLOR* color = (COLOR*)malloc(sizeof(COLOR));
 		TIME* time = (TIME*)malloc(sizeof(TIME));
@@ -745,32 +814,33 @@ typedef struct {
 		BLUE_DOT* blueDot = (BLUE_DOT*)malloc(sizeof(BLUE_DOT));
 		RED_DOT* redDot = (RED_DOT*)malloc(sizeof(RED_DOT));
 
-		if(!initDisplay(display)) {
+		// Checks if display was initialized properly.
+        if(!initDisplay(display)) {
 			End(display, color, time, snake, blueDot, redDot);
 			return 1;
 		}
 
+		// Initializes other game components.
 		initColor(display, color);
 		initTime(time);
 		initSnake(snake);
-
 		generateBlueDot(blueDot, redDot, snake);
-
 		initRedDot(redDot);
 
+		// Initializes game state trackers.
 		int quit = 0, end = 0, score = 0;
 		SDL_Event event;
 		char move = 'w';
 
+        // Main game loop.
 		while(!quit) {
+            // Updates timing.
 			time->t2 = SDL_GetTicks();
-			
 			time->delta = (time->t2 - time->t1) * 0.001;
 			time->t1 = time->t2;
-
 			time->worldTime += time->delta;
 
-
+			// Handles snake speed up.
 			if(snake->speedupTime - time->delta <= 0) {
 				snake->speedupTime = SPEEDUP_TIME;
 				snake->speed *= SPEEDUP_RATE;
@@ -779,7 +849,7 @@ typedef struct {
 				snake->speedupTime -= time->delta;
 			}
 
-
+			// Handles red dot appearance timing.
 			if(redDot->appearTimer - time->delta <= 0) {
 				generateRedDot(redDot, blueDot, snake);
 				redDot->appearTimer = RED_DOT_TIMER + RA(RED_MIN_APP, RED_MAX_APP);
@@ -787,7 +857,8 @@ typedef struct {
 			else {
 				redDot->appearTimer -= time->delta;
 			}
-			
+
+			// Handles red dot disappearance timing.
 			if(redDot->activeTimer > 0) {
 				redDot->activeTimer -= time->delta;
 
@@ -797,7 +868,7 @@ typedef struct {
 				}
 			}
 
-
+			// Handles snake movement timing.
 			if(snake->nextMove - time->delta <= 0) {
 				snake->nextMove = snake->speed;
 				if(moveSnake(snake, blueDot, redDot, move, &score)) {
@@ -806,16 +877,12 @@ typedef struct {
 				else {
 					end = 1;
 				}
-				
 			}
 			else {
 				snake->nextMove -= time->delta;
 			}
 
-
-
-
-
+			// Updates FPS counter.
 			time->fpsTimer += time->delta;
 			if(time->fpsTimer > 0.5) {
 				time->fps = time->frames * 2;
@@ -824,19 +891,15 @@ typedef struct {
 			}
 
 			
-
+			// Renders all game elements.
 			printBorder(display, score, color, time);
-
 			printSnake(display, snake, color);
-
 			printBlueDot(display, blueDot, color);
-
 			if(redDot->activeTimer > 0) printRedDot(display, redDot, color);
-
 			updateScreen(display);
 
 
-
+			// Handles input events.
 			while(SDL_PollEvent(&event)) {
 				switch(event.type) {
 					case SDL_KEYDOWN:
@@ -863,6 +926,7 @@ typedef struct {
 			
 			time->frames++;
 
+            // Game over logic.
 			if(end == 1) {
 				int finished = 0;
 				printBorder(display, score, color, time);
@@ -893,7 +957,7 @@ typedef struct {
 
 		
 
-		
+		// Clean up.
 		End(display, color, time, snake, blueDot, redDot);
 
 		return 0;
