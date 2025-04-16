@@ -10,69 +10,69 @@ extern "C" {
 }
 
 // Length of one side of each square segment of the snake in pixels.
-#define SEGMENT_SIZE	20
+#define SEGMENT_SIZE    30
 
 // Number of columns and rows in the playable area.
-#define COLS			30
-#define ROWS			30
+#define COLS    17
+#define ROWS    20
 
 // Size of the playable area: COLS x ROWS.
 // Each cell is the same size in pixels as one segment.
-#define SCREEN_WIDTH	(COLS * SEGMENT_SIZE)
-#define SCREEN_HEIGHT	(ROWS * SEGMENT_SIZE)
+#define SCREEN_WIDTH    (COLS * SEGMENT_SIZE)
+#define SCREEN_HEIGHT    (ROWS * SEGMENT_SIZE)
 
 // Both lengths are in pixels.
 // Additional pixel is added for the outline around the playable area.
-#define BORDER_LENGTH	(8 + 1)
-#define INFO_LENGTH		(44 + 1)
+#define BORDER_LENGTH    (8 + 1)
+#define INFO_LENGTH    (44 + 1)
 
 // Info section is where all of the information is displayed.
-#define WINDOW_WIDTH	(SCREEN_WIDTH  + 2 * BORDER_LENGTH)
-#define WINDOW_HEIGHT	(SCREEN_HEIGHT  + BORDER_LENGTH + INFO_LENGTH)
+#define WINDOW_WIDTH    (SCREEN_WIDTH  + 2 * BORDER_LENGTH)
+#define WINDOW_HEIGHT    (SCREEN_HEIGHT  + BORDER_LENGTH + INFO_LENGTH)
 
 // IMPORTANT:
 // Changes to the starting position and length must be made carefully.
 // If even one segment spawns outside the playable area, the game will crash.
 
 // Starting position of the snake's head.
-#define STARTING_X 		20
-#define STARTING_Y 		20
+#define STARTING_X    12
+#define STARTING_Y    10
 
 // Length includes the head.
 // Remaining segments are placed in a straight line below the head.
-#define STARTING_LENGTH	8
+#define STARTING_LENGTH    10
 
 // Time settings are all in s.
 
 // Time between snake's moves.
 // The lower the value the faster the snake will move.
-#define STARTING_SPEED	0.25
+#define STARTING_SPEED    0.2
 
 // Time after which the snake's speed will be multiplied by SPEEDUP_RATE.
-#define SPEEDUP_TIME	10
+#define SPEEDUP_TIME    10
 
 // Constant by which speed will be multiplied to make snake move faster.
-#define SPEEDUP_RATE	0.9
+#define SPEEDUP_RATE    0.95
 
 // Constant by which speed will be multiplied to make snake move slower.
-#define SLOWDOWN_RATE	1.5
+#define SLOWDOWN_RATE    1.2
 
 // Width of the bar showing time left before red dot disapears in px.
-#define RED_BAR_SIZE	100
+#define RED_BAR_SIZE    100
 
 // Time for which red dot is active.
-#define RED_DOT_TIMER	10
+#define RED_DOT_TIMER    10
 
 // Min and max time between one red dot disappeared and new one appearing.
-#define RED_MIN_APP		3
-#define RED_MAX_APP		15
+#define RED_MIN_APP    5
+#define RED_MAX_APP    15
 
 // Number of points given for collecting a red and blue dot.
-#define RED_SCORE		250
-#define BLUE_SCORE		100
+#define RED_SCORE    250
+#define BLUE_SCORE    100
 
 // Generating a random number between min and max (inclusive).
-#define RA(min, max) ( (min) + rand() % ((max) - (min) + 1) )
+#define RA(min, max)    ( (min) + rand() % ((max) - (min) + 1) )
 
 // Handles all SDL resources needed for rendering.
 typedef struct {
