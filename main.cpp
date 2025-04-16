@@ -24,11 +24,11 @@ extern "C" {
 // Both lengths are in pixels.
 // Additional pixel is added for the outline around the playable area.
 #define BORDER_LENGTH    (8 + 1)
-#define INFO_LENGTH    (44 + 1)
+#define INFO_HEIGHT    (44 + 1)
 
 // Info section is where all of the information is displayed.
 #define WINDOW_WIDTH    (SCREEN_WIDTH  + 2 * BORDER_LENGTH)
-#define WINDOW_HEIGHT    (SCREEN_HEIGHT  + BORDER_LENGTH + INFO_LENGTH)
+#define WINDOW_HEIGHT    (SCREEN_HEIGHT  + BORDER_LENGTH + INFO_HEIGHT)
 
 // IMPORTANT:
 // Changes to the starting position and length must be made carefully.
@@ -566,7 +566,7 @@ typedef struct {
 
 		// +/- 1 is used here because of the 1 px outline around the screen, which is included in the overall screen size.
 		// It is useful in the rest of the program to have it saved in border/info sizes, but here it must be compensated for.
-		DrawRectangle(display->screen, BORDER_LENGTH - 1, INFO_LENGTH - 1, SCREEN_WIDTH + 1, SCREEN_HEIGHT + 1, color->white, color->black);
+		DrawRectangle(display->screen, BORDER_LENGTH - 1, INFO_HEIGHT - 1, SCREEN_WIDTH + 1, SCREEN_HEIGHT + 1, color->white, color->black);
 
 		sprintf(text, "Time: %.1lf    FPS: %.0lf", time->worldTime, time->fps);
 		DrawString(display->screen, BORDER_LENGTH + 2, 10, text, display->charset);
@@ -594,7 +594,7 @@ typedef struct {
 			if(i != 0)	current = current->next;
 
 			x = BORDER_LENGTH + current->x * SEGMENT_SIZE;
-			y = INFO_LENGTH + current->y * SEGMENT_SIZE;
+			y = INFO_HEIGHT + current->y * SEGMENT_SIZE;
 			DrawRectangle(display->screen, x, y, SEGMENT_SIZE, SEGMENT_SIZE, color->green, color->green);
 		}
 
@@ -604,7 +604,7 @@ typedef struct {
 	void printBlueDot(DISPLAY* display, BLUE_DOT* blueDot, COLOR* color)
 	{
 		int x = BORDER_LENGTH + blueDot->x * SEGMENT_SIZE + 0.25 * SEGMENT_SIZE;
-		int y = INFO_LENGTH + blueDot->y * SEGMENT_SIZE + 0.25 * SEGMENT_SIZE;
+		int y = INFO_HEIGHT + blueDot->y * SEGMENT_SIZE + 0.25 * SEGMENT_SIZE;
 
 		DrawRectangle(display->screen, x, y, SEGMENT_SIZE / 2, SEGMENT_SIZE / 2, color->blue, color->blue);
 	}
@@ -613,7 +613,7 @@ typedef struct {
 	void printRedDot(DISPLAY* display, RED_DOT* redDot, COLOR* color)
 	{
 		int x = BORDER_LENGTH + redDot->x * SEGMENT_SIZE + 0.25 * SEGMENT_SIZE;
-		int y = INFO_LENGTH + redDot->y * SEGMENT_SIZE + 0.25 * SEGMENT_SIZE;
+		int y = INFO_HEIGHT + redDot->y * SEGMENT_SIZE + 0.25 * SEGMENT_SIZE;
 
 		DrawRectangle(display->screen, x, y, SEGMENT_SIZE / 2, SEGMENT_SIZE / 2, color->red, color->red);
 
@@ -632,13 +632,13 @@ typedef struct {
 		char text[128];
 
 		sprintf(text, "Your score is: %d", score);
-		DrawString(display->screen, display->screen->w / 2 - strlen(text) * 8 / 2, INFO_LENGTH + SCREEN_HEIGHT / 2 - 4 - 16, text, display->charset);
+		DrawString(display->screen, display->screen->w / 2 - strlen(text) * 8 / 2, INFO_HEIGHT + SCREEN_HEIGHT / 2 - 4 - 16, text, display->charset);
 
 		sprintf(text, "Press 'Esc' to exit");
-		DrawString(display->screen, display->screen->w / 2 - strlen(text) * 8 / 2, INFO_LENGTH + SCREEN_HEIGHT / 2 - 4, text, display->charset);
+		DrawString(display->screen, display->screen->w / 2 - strlen(text) * 8 / 2, INFO_HEIGHT + SCREEN_HEIGHT / 2 - 4, text, display->charset);
 
-		sprintf(text, "Press 'n' to start new game");
-		DrawString(display->screen, display->screen->w / 2 - strlen(text) * 8 / 2, INFO_LENGTH + SCREEN_HEIGHT / 2 - 4 + 16, text, display->charset);
+		sprintf(text, "Press 'n' to start a new game");
+		DrawString(display->screen, display->screen->w / 2 - strlen(text) * 8 / 2, INFO_HEIGHT + SCREEN_HEIGHT / 2 - 4 + 16, text, display->charset);
 
 	}
 
