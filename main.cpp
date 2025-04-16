@@ -168,7 +168,7 @@ typedef struct {
 		SDL_RenderSetLogicalSize(display->renderer, WINDOW_WIDTH, WINDOW_HEIGHT);
 		SDL_SetRenderDrawColor(display->renderer, 0, 0, 0, 255);
 
-		SDL_SetWindowTitle(display->window, "Snake - Michał Kaźmierowski");
+		SDL_SetWindowTitle(display->window, "Snake game");
 
 		display->screen = SDL_CreateRGBSurface(0, WINDOW_WIDTH, WINDOW_HEIGHT, 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
 
@@ -568,16 +568,16 @@ typedef struct {
 		// It is useful in the rest of the program to have it saved in border/info sizes, but here it must be compensated for.
 		DrawRectangle(display->screen, BORDER_LENGTH - 1, INFO_HEIGHT - 1, SCREEN_WIDTH + 1, SCREEN_HEIGHT + 1, color->white, color->black);
 
-		sprintf(text, "Time: %.1lf    FPS: %.0lf", time->worldTime, time->fps);
+		sprintf(text, "Score: %d", score);
 		DrawString(display->screen, BORDER_LENGTH + 2, 10, text, display->charset);
 
-		sprintf(text, "'Esc' - Exit    'n' - New game");
+		sprintf(text, "'s' - Save    'l' - Load");
 		DrawString(display->screen, display->screen->w - (strlen(text) * 8) - (BORDER_LENGTH + 2), 10, text, display->charset);
 
-		sprintf(text, "Score: %d", score);
+		sprintf(text, "Time: %.1lf    FPS: %.0lf", time->worldTime, time->fps);
 		DrawString(display->screen, BORDER_LENGTH + 2, 26, text, display->charset);
 
-		sprintf(text, "Implemented: 1, 2, 3, 4, A, B, C, D, E");
+		sprintf(text, "'n' - New game    'Esc' - Exit");
 		DrawString(display->screen, display->screen->w - (strlen(text) * 8) - (BORDER_LENGTH + 2), 26, text, display->charset);
 
 	}
